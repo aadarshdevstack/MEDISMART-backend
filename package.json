@@ -1,0 +1,42 @@
+{
+  "name": "medismart-backend",
+  "version": "1.0.0",
+  "description": "Scalable backend for MEDISMART, enabling medicine ordering, inventory management, and role-based access for consumers, sellers, and admins.",
+  "keywords": [
+    "javascript",
+    "backend",
+    "express",
+    "mongodb",
+    "mongoose"
+  ],
+  "homepage": "https://github.com/aadarshdevstack/MEDISMART-backend#readme",
+  "bugs": {
+    "url": "https://github.com/aadarshdevstack/MEDISMART-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aadarshdevstack/MEDISMART-backend.git"
+  },
+  "license": "ISC",
+  "author": "Aadarsh Garhewal",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.3"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.9.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.5.0",
+    "multer": "^2.1.1"
+  }
+}
