@@ -66,6 +66,7 @@ medismart-backend/
 │   ├── models/
 │   ├── routes/
 │   ├── utils/
+│   ├── assets/
 │   ├── app.js
 │   ├── constants.js
 │   └── index.js
@@ -137,8 +138,12 @@ Start the server
 
 ```bash
   npm run dev
+
 ```
 
+## Data Model
+
+- [dataModel](./assets/dataModel.png)
 
 ## Authors
 
