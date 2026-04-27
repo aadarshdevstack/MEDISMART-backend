@@ -10,7 +10,7 @@ const consumerSchema = new Schema({
         default:"consumer"
     },
 
-    fullname: {
+    fullName: {
         type: String,
         required: true,
         trim: true,
@@ -28,11 +28,13 @@ const consumerSchema = new Schema({
     phoneNo: {
         type: String,
         required: true,
+        unique:true
     },
 
     password: {
         type: String,
         required: true,
+        minlength:6
     },
 
     avatar: {
@@ -41,7 +43,8 @@ const consumerSchema = new Schema({
     },
 
     refreshToken: {
-        type: String
+        type: String,
+        default:null
     },
     addresses: [
         {
@@ -78,7 +81,7 @@ consumerSchema.methods.generateAccessToken= function(){
             _id:this._id,
             role:this.role,
             email:this.email,
-            username:this.username,
+            phoneNo:this.phoneNo,
             fullName:this.fullName
         },
         process.env.ACCESS_TOKEN_SECRET,  

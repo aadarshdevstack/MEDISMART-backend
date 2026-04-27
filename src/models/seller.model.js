@@ -10,7 +10,7 @@ const sellerSchema = new Schema({
         default:"seller"
     },
 
-    fullname: {
+    fullName: {
         type: String,
         required: true,
         trim: true,
@@ -28,6 +28,7 @@ const sellerSchema = new Schema({
     phoneNo: {
         type: String,
         required: true,
+        unique:true
     },
 
     password: {
@@ -44,7 +45,8 @@ const sellerSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-    index: true
+    index: true,
+    default:""
     },
 
     storeImage: {
@@ -88,7 +90,7 @@ sellerSchema.methods.generateAccessToken= function(){
             _id:this._id,
             role:this.role,
             email:this.email,
-            username:this.username,
+            phoneNo:this.phoneNo,
             fullName:this.fullName
         },
         process.env.ACCESS_TOKEN_SECRET,  
