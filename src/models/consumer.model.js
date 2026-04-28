@@ -46,23 +46,27 @@ const consumerSchema = new Schema({
         type: String,
         default:null
     },
+
     addresses: [
-        {
-            type: {
-                type: String,
-                enum: ["home", "office", "rent"]
-            },
-            street: String,
-            landmark: String,
-            city: String,
-            state: String,
-            pincode: Number,
-            isDefault: {
-                type: Boolean,
-                default: false
-            }
+        {  
+            fullName: { type: String, required: true },     
+            phoneNo: { type: String, required: true },     
+
+            pincode: { type: String, required: true },
+            state: { type: String, required: true },
+            city: { type: String, required: true },
+
+            street: { type: String, required: true },       
+            landmark: { type: String , required: true},    
+            addressType: { 
+                type: String, 
+                enum: ["home", "work", "other"], 
+                default: "home"
+                },                 
+
+            isDefault: { type: Boolean, default: false }
         }
-    ],
+    ]
 
 }, { timestamps: true })
 
@@ -102,4 +106,5 @@ consumerSchema.methods.generateRefreshToken= function(){
         }
     )
 }
+
 export const Consumer = mongoose.model("Consumer", consumerSchema)

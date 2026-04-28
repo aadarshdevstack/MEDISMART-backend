@@ -3,7 +3,7 @@ import { loginUser, registerUser , logoutUser, refreshAccessToken , changeCurren
 import { verifyJWT } from "../middlewares/auth.middleware.js"
 import { Consumer } from "../models/consumer.model.js"
 import { upload } from "../middlewares/multer.middleware.js"
-import { updateConsumerProfie } from "../controllers/consumer.controller.js"
+import { addConsumerAddress, deleteConsumerAddress, getConsumerAddress, updateConsumerAddress, updateConsumerProfile } from "../controllers/consumer.controller.js"
 
 
 const router = Router()
@@ -13,6 +13,8 @@ router.route("/register").post(registerUser(Consumer))
 
 //login route
 router.route("/login").post(loginUser(Consumer))
+
+
 
 
 /*Secured routes*/
@@ -28,9 +30,21 @@ router.route("/change-password").post(verifyJWT(Consumer) , changeCurrentPasswor
 
 //getCurrentUser
 router.route("/me").get(verifyJWT(Consumer) , getCurrentUser(Consumer))
-export default router
 
 //updateProfile
 router.route("/update-profile").patch(
-    verifyJWT(Consumer) , upload.single("avatar") , updateConsumerProfie
+    verifyJWT(Consumer) , upload.single("avatar") , updateConsumerProfile
 )
+
+//Add&GetAddress
+router.route("/address")
+.post(verifyJWT(Consumer) , addConsumerAddress)
+.get(verifyJWT(Consumer) , getConsumerAddress)
+
+//updateAndDeleteAddress
+router.route("/address/:id")
+.patch(verifyJWT(Consumer) , updateConsumerAddress)
+.delete(verifyJWT(Consumer) , deleteConsumerAddress)
+
+
+export default router
