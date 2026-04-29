@@ -1,7 +1,7 @@
 import { Consumer } from "../models/consumer.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
-import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import { uploadOnCloudinary, cloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
 
 const updateConsumerProfile = asyncHandler(async (req, res) => {
@@ -12,8 +12,11 @@ const updateConsumerProfile = asyncHandler(async (req, res) => {
     upload avatar on cloudinary
     check user from req.user which is coming from verifyjwt
     update given fields
+    remove old image from cloudinary
     return response
      */
+
+    //Otp or Email based verification while changing email and phoneNo  => to be launched in future
 
     let { fullName, phoneNo } = req.body
 
@@ -23,9 +26,7 @@ const updateConsumerProfile = asyncHandler(async (req, res) => {
     fullName = normalize(fullName);
     phoneNo = normalize(phoneNo);
 
-    console.log(fullName);
-    console.log(phoneNo)
-    console.log("File:", req.file);
+    //console.log("File:", req.file);
 
     let avatarLocalPath;
     if (req.file?.path) {
@@ -47,10 +48,13 @@ const updateConsumerProfile = asyncHandler(async (req, res) => {
         }
     }
 
+    const existingConsumer = await Consumer.findById(req.user._id);
+    const oldPublicId = existingConsumer?.avatar?.public_id;
+
     let uploadedAvatar;
     if (avatarLocalPath) {
         const result = await uploadOnCloudinary(avatarLocalPath, "MediSmart/Consumer/Avatar");
-        console.log(result);
+        //console.log(result);
 
         if (!result) {
             throw new ApiError(500, "Avatar upload failed");
@@ -61,9 +65,14 @@ const updateConsumerProfile = asyncHandler(async (req, res) => {
     const updates = {};
     if (fullName) updates.fullName = fullName;
     if (phoneNo) updates.phoneNo = phoneNo;
-    if (uploadedAvatar) updates.avatar = uploadedAvatar.url;
+    if (uploadedAvatar) {
+        updates.avatar = {
+            url: uploadedAvatar.url,
+            public_id: uploadedAvatar.public_id
+        };
+    }
 
-    const user = await Consumer.findByIdAndUpdate(
+    const consumer = await Consumer.findByIdAndUpdate(
         req.user?._id,
         {
             $set: updates
@@ -72,13 +81,25 @@ const updateConsumerProfile = asyncHandler(async (req, res) => {
             new: true
         }
     ).select(
-        "-password -refreshToken -__v"
+        "-password -refreshToken -__v -avatar.public_id"
     )
+
+    if (!consumer) {
+        throw new ApiError(404, "User Not Found")
+    }
+
+    try {
+        if (oldPublicId && uploadedAvatar) {
+            await cloudinary.uploader.destroy(oldPublicId);
+        }
+    } catch (err) {
+        console.log("Cloudinary delete failed:", err);
+    }
 
     return res
         .status(200)
         .json(
-            new ApiResponse(200, user, "Profile updated successfully")
+            new ApiResponse(200, consumer, "Profile updated successfully")
         )
 
 })
@@ -100,13 +121,13 @@ const addConsumerAddress = asyncHandler(async (req, res) => {
         throw new ApiError(400, "please fill all the required fields")
     }
 
-    const user = await Consumer.findById(req.user?._id)
+    const consumer = await Consumer.findById(req.user?._id)
 
-    if (!user) {
+    if (!consumer) {
         throw new ApiError(401, "unauthorized access")
     }
 
-    const isFirstAddress = user.addresses.length === 0;
+    const isFirstAddress = consumer.addresses.length === 0;
 
     const makeDefault =
         isFirstAddress || isDefault === true || isDefault === "true";
@@ -129,7 +150,7 @@ const addConsumerAddress = asyncHandler(async (req, res) => {
         isDefault: makeDefault
     }
 
-    const updatedUser = await Consumer.findByIdAndUpdate(
+    const updatedConsumer = await Consumer.findByIdAndUpdate(
         req.user._id,
         {
             $push: {
@@ -142,11 +163,15 @@ const addConsumerAddress = asyncHandler(async (req, res) => {
         }
     );
 
+    if(!updatedConsumer){
+        throw new ApiError(404 , "User Not Found")
+    }
+
     return res
         .status(200)
         .json(
             new ApiResponse(
-                200, updatedUser.addresses, "Address added successfully"
+                200, updatedConsumer.addresses, "Address added successfully"
             )
         )
 
@@ -158,15 +183,15 @@ const getConsumerAddress = asyncHandler(async (req, res) => {
     take address array from user data
     send that array in response */
 
-    const user = await Consumer.findById(req.user?._id)
+    const consumer = await Consumer.findById(req.user?._id)
 
-    if (!user) {
+    if (!consumer) {
         throw new ApiError(401, "unauthorized access")
     }
 
-    const address = user.addresses
+    const address = consumer.addresses
 
-    if (!address) {
+    if (!address || address.length === 0) {
         throw new ApiError(404, "No address found")
     }
 
@@ -208,13 +233,13 @@ const updateConsumerAddress = asyncHandler(async (req, res) => {
         throw new ApiError(400, "At least one field is required to update");
     }
 
-    const user = await Consumer.findById(req.user?._id)
+    const consumer = await Consumer.findById(req.user?._id)
 
-    if (!user) {
+    if (!consumer) {
         throw new ApiError(401, "unauthorized access")
     }
 
-    const address = user.addresses.id(req.params.id);
+    const address = consumer.addresses.id(req.params.id);
 
     //console.log(req.params.id);
     //console.log(address);
@@ -245,7 +270,7 @@ const updateConsumerAddress = asyncHandler(async (req, res) => {
     if (landmark) updateFields["addresses.$.landmark"] = landmark;
     if (addressType) updateFields["addresses.$.addressType"] = addressType;
 
-    const updatedUser = await Consumer.findOneAndUpdate(
+    const updatedConsumer = await Consumer.findOneAndUpdate(
         {
             _id: req.user._id,
             "addresses._id": req.params.id
@@ -259,15 +284,15 @@ const updateConsumerAddress = asyncHandler(async (req, res) => {
         }
     );
 
-    if (!updatedUser) {
-        throw new ApiError(500, "error occoured while updating address ");
+    if (!updatedConsumer) {
+        throw new ApiError(404, "User not found");
     }
 
     return res
         .status(200)
         .json(
             new ApiResponse(
-                200, updatedUser.addresses, "Address updated successfully"
+                200, updatedConsumer.addresses, "Address updated successfully"
             )
         )
 
@@ -277,35 +302,38 @@ const deleteConsumerAddress = asyncHandler(async (req, res) => {
     /*Algorithm-
     take authentic user from jwtverify
     take out specific address to be deleted
+    */
+    const consumer = await Consumer.findById(req.user?._id);
 
-     */
-    const user = await Consumer.findById(req.user?._id);
-
-    if (!user) {
+    if (!consumer) {
         throw new ApiError(401, "Unauthorized access");
     }
 
-    const address = user.addresses.id(req.params.id);
+    const address = consumer.addresses.id(req.params.id);
 
     if (!address) {
         throw new ApiError(404, "Address not found");
     }
 
-    const updateduser = await Consumer.findByIdAndUpdate(
+    const updatedConsumer = await Consumer.findByIdAndUpdate(
         req.user._id,
         {
             $pull: {
-                 addresses: { _id: req.params.id } 
-            } 
+                addresses: { _id: req.params.id }
+            }
         },
         { new: true }
     );
+
+    if(!updatedConsumer){
+        new ApiError(404 , "user Not found")
+    }
 
     return res
         .status(200)
         .json(
             new ApiResponse(200,
-                updateduser.addresses, "Address deleted successfully"
+                updatedConsumer.addresses, "Address deleted successfully"
             )
         )
 

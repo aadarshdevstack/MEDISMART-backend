@@ -20,7 +20,7 @@ const verifyJWT = (Model) => asyncHandler(async(req ,_, next)=>{
     
         const decodedToken = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET)
         const user = await Model.findById(decodedToken?._id).select(
-            "-password -refreshToken -__v"
+            "-password -refreshToken -__v -avatar.public_id -storeProfile.storeImage.public_id"
         )
     
         if(!user){
@@ -30,7 +30,7 @@ const verifyJWT = (Model) => asyncHandler(async(req ,_, next)=>{
         req.user= user
         next()
     } catch (error) {
-        throw new ApiError(401 , error?.message || "Invalid Access Token")
+        throw new ApiError(401 , {} , error?.message || "Invalid Access Token")
     }
 
 })

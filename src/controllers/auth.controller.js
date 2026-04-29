@@ -34,7 +34,7 @@ const registerUser= (Model) => asyncHandler(async(req,res)=>{
     */
 
     const {fullName , email , phoneNo , password} = req.body
-    console.log(req.body);
+    //console.log(req.body);
 
     if(
         [fullName , email , phoneNo , password ].some(
@@ -62,7 +62,7 @@ const registerUser= (Model) => asyncHandler(async(req,res)=>{
     })
 
     const createdUser = await Model.findById(user._id).select(
-        "-password -refreshToken -__v"
+        "-password -refreshToken -__v -avatar.public_id  -storeProfile.storeImage.public_id"
     )
 
     if(!createdUser){
@@ -118,7 +118,7 @@ const loginUser = (Model) => asyncHandler(async(req,res)=>{
     const {accessToken , refreshToken} = await generateAccessAndRefreshToken(Model , user._id)
 
     const loggedInUser = await Model.findById(user._id).select(
-        "-password -refreshToken -__v"
+        "-password -refreshToken -__v -avatar.public_id  -storeProfile.storeImage.public_id"
     )
 
     const options={
@@ -222,7 +222,7 @@ const refreshAccessToken = (Model) => asyncHandler(async(req,res)=>{
             )
         )
     } catch (error) {
-        throw new ApiError(401 , error?.message || "invalid refresh token")
+        throw new ApiError(401 , {} , error?.message || "invalid refresh token")
     }
 
 })
@@ -291,7 +291,6 @@ const getCurrentUser = (Model) => asyncHandler(async(req,res)=>{
         "current user fetched successfully"
     ))
 })
-
 
 
 export {registerUser,

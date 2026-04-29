@@ -7,7 +7,7 @@ const sellerSchema = new Schema({
         type: String,
         required: true,
         enum: ["seller"],
-        default:"seller"
+        default: "seller"
     },
 
     fullName: {
@@ -28,40 +28,69 @@ const sellerSchema = new Schema({
     phoneNo: {
         type: String,
         required: true,
-        unique:true
+        unique: true,
+        trim:true
     },
 
     password: {
         type: String,
         required: true,
+        minlength: 6,
     },
 
     avatar: {
-        type: String,
-        default:""
+        url: {
+            type: String,
+            default: ""
+        },
+        public_id: {
+            type: String,
+            default: ""
+        }
     },
 
-    storeName: {
-    type: String,
-    required: true,
-    trim: true,
-    index: true,
-    default:""
-    },
+    storeProfile: {
+        storeName: {
+            type: String,
+            trim: true,
+            index: true,
+            default: ""
+        },
 
-    storeImage: {
-    type: String,   
-    default: ""
+        storeImage: {
+            url: {
+                type: String,
+                default: ""
+            },
+            public_id: {
+                type: String,
+                default: ""
+            }
+        }
     },
 
     storeAddress: [
         {
-        street: String,
-        landmark: String,
-        city: String,
-        state: String,
-        pincode: Number
-        } 
+            street: {
+                type: String,
+                required: true
+            },
+            landmark: {
+                type: String
+            },
+            city: {
+                type: String,
+                required: true
+            },
+            state: {
+                type: String,
+                required: true
+            },
+            pincode: {
+                type: String,
+                required: true
+            }
+        }
     ],
 
     isApproved: {
@@ -75,39 +104,39 @@ const sellerSchema = new Schema({
 
 }, { timestamps: true })
 
-sellerSchema.pre("save" , async function(){
-    if (!this.isModified("password")) return 
-    this.password = await bcrypt.hash(this.password , 10)    
+sellerSchema.pre("save", async function () {
+    if (!this.isModified("password")) return
+    this.password = await bcrypt.hash(this.password, 10)
 })
 
-sellerSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password , this.password)
+sellerSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password)
 }
 
-sellerSchema.methods.generateAccessToken= function(){
-    return jwt.sign(                               
+sellerSchema.methods.generateAccessToken = function () {
+    return jwt.sign(
         {
-            _id:this._id,
-            role:this.role,
-            email:this.email,
-            phoneNo:this.phoneNo,
-            fullName:this.fullName
+            _id: this._id,
+            role: this.role,
+            email: this.email,
+            phoneNo: this.phoneNo,
+            fullName: this.fullName
         },
-        process.env.ACCESS_TOKEN_SECRET,  
+        process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn:process.env.ACCESS_TOKEN_EXPIRY
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
     )
 }
 
-sellerSchema.methods.generateRefreshToken= function(){
+sellerSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
-            _id:this._id,                      
+            _id: this._id,
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }

@@ -28,7 +28,8 @@ const consumerSchema = new Schema({
     phoneNo: {
         type: String,
         required: true,
-        unique:true
+        unique:true,
+        trim:true
     },
 
     password: {
@@ -38,8 +39,14 @@ const consumerSchema = new Schema({
     },
 
     avatar: {
-        type: String,
-        default : ""
+        url: {
+            type: String,
+            default: ""
+        },
+        public_id: {
+            type: String,
+            default: ""
+        }
     },
 
     refreshToken: {
