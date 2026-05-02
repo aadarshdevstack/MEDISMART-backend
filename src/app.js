@@ -22,12 +22,14 @@ app.use(express.static("public"))
 // import routes
 import consumerRoute from "./routes/consumer.routes.js"
 import sellerRoute from "./routes/seller.routes.js"
-
-
+import adminRoute from "./routes/admin.routes.js"
+import categoryRoute from "./routes/category.routes.js"
 
 
 // routes declaration
 app.use("/api/v1/consumer" , consumerRoute )
 app.use("/api/v1/seller" , sellerRoute )
+app.use("/api/v1/admin" , adminRoute )
+app.use("/api/v1/categories" , categoryRoute )
 
 export {app}

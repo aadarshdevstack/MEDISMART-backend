@@ -196,7 +196,7 @@ const updateStoreProfile = asyncHandler(async (req, res) => {
     if (!seller) {
         throw new ApiError(404, "User not found");
     }
-    
+
 
     //console.log("Old Public ID:", oldPublicId);
     //console.log("Uploaded storeImage:", uploadedStoreImage);
@@ -305,7 +305,7 @@ const updateStoreAddress = asyncHandler(async (req, res) => {
     update address in cuurent address id
     return response  */
 
-    let {pincode, state, city, street, landmark} = req.body
+    let { pincode, state, city, street, landmark } = req.body
 
     const normalize = (field) => (
         typeof field === "string" ? field.trim() : field
@@ -316,7 +316,7 @@ const updateStoreAddress = asyncHandler(async (req, res) => {
     city = normalize(city)
     street = normalize(street)
     landmark = normalize(landmark)
-    
+
     if (!pincode && !state && !city && !street && !landmark) {
         throw new ApiError(400, "At least one field is required to update");
     }
@@ -342,7 +342,7 @@ const updateStoreAddress = asyncHandler(async (req, res) => {
     if (city) updateFields["storeAddress.$.city"] = city;
     if (street) updateFields["storeAddress.$.street"] = street;
     if (landmark) updateFields["storeAddress.$.landmark"] = landmark;
-    
+
 
     const updatedSeller = await Seller.findOneAndUpdate(
         {
@@ -413,7 +413,7 @@ const deleteStoreAddress = asyncHandler(async (req, res) => {
 
 })
 
-const isAllProfileComplete = asyncHandler(async(req,res)=>{
+const isAllProfileComplete = asyncHandler(async (req, res) => {
     /*Algorithm-
     take out cuurent seller from verifyJwt
     check all fields are complete
@@ -454,4 +454,12 @@ const isAllProfileComplete = asyncHandler(async(req,res)=>{
 
 //In future add bydeafult functionality which  make address default if only one adddress is there when we delete all address except this
 
-export { updateSellerProfile , updateStoreProfile , addStoreAddress , getStoreAddress , updateStoreAddress , deleteStoreAddress , isAllProfileComplete}
+export {
+    updateSellerProfile,
+    updateStoreProfile,
+    addStoreAddress,
+    getStoreAddress,
+    updateStoreAddress,
+    deleteStoreAddress,
+    isAllProfileComplete
+}

@@ -163,8 +163,8 @@ const addConsumerAddress = asyncHandler(async (req, res) => {
         }
     );
 
-    if(!updatedConsumer){
-        throw new ApiError(404 , "User Not Found")
+    if (!updatedConsumer) {
+        throw new ApiError(404, "User Not Found")
     }
 
     return res
@@ -325,8 +325,8 @@ const deleteConsumerAddress = asyncHandler(async (req, res) => {
         { new: true }
     );
 
-    if(!updatedConsumer){
-        new ApiError(404 , "user Not found")
+    if (!updatedConsumer) {
+        new ApiError(404, "user Not found")
     }
 
     return res
@@ -341,4 +341,10 @@ const deleteConsumerAddress = asyncHandler(async (req, res) => {
 
 //In future add bydeafult functionality which  make address default if only one adddress is there when we delete all address except this
 
-export { updateConsumerProfile, addConsumerAddress, getConsumerAddress, updateConsumerAddress, deleteConsumerAddress }
+export {
+    updateConsumerProfile,
+    addConsumerAddress,
+    getConsumerAddress,
+    updateConsumerAddress,
+    deleteConsumerAddress
+}

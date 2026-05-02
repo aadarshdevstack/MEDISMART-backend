@@ -136,7 +136,7 @@ const loginUser = (Model) => asyncHandler(async(req,res)=>{
             {
                 user:loggedInUser , accessToken
             },
-            "User logged in SuccessFully"
+            "logged in SuccessFully"
         )
     )
 
@@ -170,7 +170,7 @@ const logoutUser = (Model) => asyncHandler(async(req,res)=>{
     .clearCookie("accessToken" , options)
     .clearCookie("refreshToken" , options)
     .json(
-        new ApiResponse(200 , {} , "User logged out")
+        new ApiResponse(200 , {} , "logged out")
     )
 })
 

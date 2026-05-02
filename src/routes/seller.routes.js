@@ -44,13 +44,12 @@ router.route("/store-address")
     .post(verifyJWT(Seller), addStoreAddress)
     .get(verifyJWT(Seller), getStoreAddress)
 
+//isAllProfileComplete
+router.route("/profile-status").get(verifyJWT(Seller) , isAllProfileComplete)    
+
 //updateAndDeleteAddress
 router.route("/store-address/:id")
     .patch(verifyJWT(Seller), updateStoreAddress)
     .delete(verifyJWT(Seller), deleteStoreAddress)
-
-//isAllProfileComplete
-router.route("/profile-status").get(verifyJWT(Seller) , isAllProfileComplete)
-
 
 export default router
